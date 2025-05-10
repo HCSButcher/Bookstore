@@ -2,6 +2,8 @@ import express from "express";
 import cloudinary from "../lib/cloudinary.js";
 import Book from "../models/Book.js";
 
+import protectRoute from "../middleware/auth.middleware.js";
+
 const Router = express.Router();
 
 Router.post("/", protectRoute, async (req, res) => {
@@ -28,6 +30,17 @@ Router.post("/", protectRoute, async (req, res) => {
   } catch (error) {
     console.log("Error creating book", error);
     res.status(500).json({ message: error.message });
+  }
+});
+
+// pagination => infinite loading
+Router.get("/", protectRoute, async (req, res) => {
+  try {
+    const books = await Book.find();
+    res.send(books);
+  } catch (error) {
+    console.log("Error in getting books", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
