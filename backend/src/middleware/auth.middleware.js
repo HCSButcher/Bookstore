@@ -4,7 +4,7 @@ import User from "../models/User.js";
 const protectRoute = async (req, res, next) => {
   try {
     //get token
-    const token = req.header("Authorization").replace("Bearer", "");
+    const token = req.header("Authorization")?.replace("Bearer", "");
     if (!token)
       return res
         .status(401)
@@ -16,7 +16,7 @@ const protectRoute = async (req, res, next) => {
     //find user
     const user = await User.findById(decoded.userId).select("-password");
     if (!user) return res.status(401).json({ message: "Token is not valid" });
-    req.user = User;
+    req.user = user;
     next();
   } catch (error) {
     console.error("Authentication error:", error.message);

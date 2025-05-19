@@ -10,6 +10,7 @@ const generateToken = (userId) => {
 
 Router.post("/register", async (req, res) => {
   try {
+    const { email, username, password } = req.body;
     if (!email || !username || !password) {
       return res
         .status(400)
@@ -48,7 +49,7 @@ Router.post("/register", async (req, res) => {
       profileImage,
     });
 
-    await User.Save();
+    await user.save();
     const token = generateToken(user._id);
     res.status(201).json({
       token,
@@ -72,7 +73,7 @@ Router.post("/login", async (req, res) => {
       return res.status(400).json({ message: "Please fill in all fields" });
 
     //check for user
-    const user = User.findOne({ email });
+    const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
     //check if password is correct
@@ -81,7 +82,7 @@ Router.post("/login", async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
 
     //generate token
-    const token = generateToken(user_id);
+    const token = generateToken(user._id);
     res.status(201).json({
       token,
       user: {
