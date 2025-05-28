@@ -10,7 +10,7 @@ export const useAuthStore = create((set) => ({
     set({ isLoading: true });
     try {
       const response = await fetch(
-        "https://bookstore-l4of.onrender.com/api/auth/register",
+        "https://bookstore-u19x.onrender.com/api/auth/register",
         {
           method: "POST",
           headers: {
