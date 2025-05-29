@@ -72,18 +72,20 @@ Router.post("/login", async (req, res) => {
     if (!email || !password)
       return res.status(400).json({ message: "Please fill in all fields" });
 
-    //check for user
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
-    //check if password is correct
+    // Safe guard before calling comparePassword
+    if (typeof user.comparePassword !== "function") {
+      throw new Error("comparePassword method is not defined on user");
+    }
+
     const isPasswordCorrect = await user.comparePassword(password);
     if (!isPasswordCorrect)
       return res.status(400).json({ message: "Invalid credentials" });
 
-    //generate token
     const token = generateToken(user._id);
-    res.status(201).json({
+    return res.status(200).json({
       token,
       user: {
         id: user._id,
@@ -93,8 +95,8 @@ Router.post("/login", async (req, res) => {
       },
     });
   } catch (error) {
-    console.log("error in login route");
-    res.status(500).json({ message: "Internal server error" });
+    console.error("Login error:", error); // ✅ See actual reason
+    return res.status(500).json({ message: "Internal server error" });
   }
 });
 
