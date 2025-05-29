@@ -76,11 +76,11 @@ Router.post("/login", async (req, res) => {
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
     // Safe guard before calling comparePassword
-    if (typeof user.comparePassword !== "function") {
+    if (typeof user.comparePasswords !== "function") {
       throw new Error("comparePassword method is not defined on user");
     }
 
-    const isPasswordCorrect = await user.comparePassword(password);
+    const isPasswordCorrect = await user.comparePasswords(password);
     if (!isPasswordCorrect)
       return res.status(400).json({ message: "Invalid credentials" });
 
