@@ -52,6 +52,7 @@ Router.post("/register", async (req, res) => {
     await user.save();
     const token = generateToken(user._id);
     res.status(201).json({
+      message: "Registration successful",
       token,
       user: {
         id: user._id,
@@ -86,6 +87,7 @@ Router.post("/login", async (req, res) => {
 
     const token = generateToken(user._id);
     return res.status(200).json({
+      message: "Login successful",
       token,
       user: {
         id: user._id,
@@ -95,7 +97,7 @@ Router.post("/login", async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Login error:", error); // ✅ See actual reason
+    console.error("Login error:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 });
