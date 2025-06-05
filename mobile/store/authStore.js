@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API_URL } from "../constants/api";
+import { Alert } from "react-native";
 
 export const useAuthStore = create((set) => ({
   user: null,
@@ -9,27 +11,27 @@ export const useAuthStore = create((set) => ({
   register: async (username, email, password) => {
     set({ isLoading: true });
     try {
-      const response = await fetch(
-        "https://bookstore-u19x.onrender.com/api/auth/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username,
-            email,
-            password,
-          }),
-        }
-      );
+      const response = await fetch(`${API_URL}/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username,
+          email,
+          password,
+        }),
+      });
       const data = await response.json();
 
       if (!response.ok) throw new Error(data.message || "Something went wrong");
-      await AsyncStorage.setItem("User", JSON.stringify(data.user));
+
+      // Use lowercase 'user' key for consistency
+      await AsyncStorage.setItem("user", JSON.stringify(data.user));
       await AsyncStorage.setItem("token", data.token);
 
       set({ token: data.token, user: data.user, isLoading: false });
+      Alert.alert("Success", "Registration successful! Welcome to BookStore");
       return { success: true };
     } catch (error) {
       set({ isLoading: false });
@@ -40,19 +42,16 @@ export const useAuthStore = create((set) => ({
   login: async (email, password) => {
     set({ isLoading: true });
     try {
-      const response = await fetch(
-        "https://bookstore-u19x.onrender.com/api/auth/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email,
-            password,
-          }),
-        }
-      );
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
 
       const data = await response.json();
 
@@ -62,6 +61,7 @@ export const useAuthStore = create((set) => ({
       await AsyncStorage.setItem("token", data.token);
 
       set({ user: data.user, token: data.token, isLoading: false });
+      Alert.alert("Success", "Login successful! Welcome to BookStore");
       return { success: true };
     } catch (error) {
       set({ isLoading: false });
