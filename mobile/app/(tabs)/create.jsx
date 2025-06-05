@@ -44,23 +44,22 @@ export default function Create() {
           return;
         }
       }
-      //launch image library
+
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: "images",
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [4, 3],
-        quality: 0.5, //lower quality for smaller base64
-        base64: true, //get base64 string
+        quality: 0.5,
+        base64: true,
       });
-      if (!result.canceled) {
-        setImage(result.assets[0].uri);
 
-        //if base64 is provided, use it
-        if (result.assets[0].base64) {
-          setImageBase64(result.assets[0].base64);
-        }
+      if (!result.canceled && result.assets.length > 0) {
+        setImage(result.assets[0].uri);
+        setImageBase64(result.assets[0].base64 || null);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error("Image pick error:", error);
+    }
   };
 
   const handleSubmit = async () => {
@@ -77,38 +76,40 @@ export default function Create() {
       const imageType = fileType
         ? `image/${fileType.toLowerCase()}`
         : "image/jpeg";
-
       const imageDataUrl = `data:${imageType};base64,${imageBase64}`;
+
+      const payload = {
+        name: title.trim(),
+        caption: caption.trim(),
+        rating: parseInt(rating),
+        image: imageDataUrl,
+      };
+
+      console.log("Payload:", payload);
 
       const response = await fetch(`${API_URL}/books`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`, // make sure this exact header is sent
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          title,
-          caption,
-          rating: rating.toString(),
-          image: imageDataUrl,
-        }),
+        body: JSON.stringify(payload),
       });
 
-      // Check response status BEFORE parsing
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("Non-JSON error response:", errorText);
+        console.error("Server error response:", errorText);
         throw new Error(
           `Failed to post: ${response.status} ${response.statusText}`
         );
       }
 
-      const data = await response.json();
-
+      const data = await response.json(); // not used but left for future use
       Alert.alert("Success", "Your book recommendation has been posted!");
+
       setTitle("");
       setCaption("");
-      setRating(3); // reset to default rating
+      setRating(3);
       setImage(null);
       setImageBase64(null);
       router.push("/");
@@ -146,22 +147,20 @@ export default function Create() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView
-        contentContainerStyles={styles.container}
+        contentContainerStyle={styles.container} // <- FIX: use correct prop
         style={styles.scrollViewStyle}
       >
         <View style={styles.card}>
-          {/* HEADER */}
           <View style={styles.header}>
-            <Text style={styles.title}> Add Book Recommendation </Text>
+            <Text style={styles.title}>Add Book Recommendation</Text>
             <Text style={styles.subtitle}>
-              {" "}
-              share your favorite reads with others{" "}
+              Share your favorite reads with others
             </Text>
           </View>
-          {/* BOOK TITLE */}
+
           <View style={styles.form}>
             <View style={styles.formGroup}>
-              <Text style={styles.label}> Book Title </Text>
+              <Text style={styles.label}>Book Title</Text>
               <View style={styles.inputContainer}>
                 <Ionicons
                   name="book-outline"
@@ -178,62 +177,62 @@ export default function Create() {
                 />
               </View>
             </View>
-            {/* RATING */}
+
             <View style={styles.formGroup}>
-              <Text style={styles.label}> Your Rating </Text>
-              {renderRatingPicker(rating, setRating)}
+              <Text style={styles.label}>Your Rating</Text>
+              {renderRatingPicker()}
             </View>
-          </View>
-          {/* IMAGE */}
-          <View style={styles.formGroup}>
-            <Text style={styles.label}> Book Image </Text>
-            <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
-              {image ? (
-                <Image source={{ uri: image }} style={styles.previewImage} />
-              ) : (
-                <View style={styles.placeholderContainer}>
-                  <Ionicons
-                    name="image-outline"
-                    size={40}
-                    color={COLORS.textSecondary}
-                  />
-                  <Text style={styles.placeholderText}>
-                    Tap to select image
-                  </Text>
-                </View>
-              )}
-            </TouchableOpacity>
-          </View>
-          {/* CAPTION */}
-          <View style={styles.formGroup}>
-            <Text style={styles.label}> Caption </Text>
-            <TextInput
-              style={styles.textArea}
-              placeholder="Write your review or thoughts about this book..."
-              placeholderTextColor={COLORS.placeholderText}
-              value={caption}
-              onChangeText={setCaption}
-              multiline
-            ></TextInput>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={handleSubmit}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator color={COLORS.white} />
-              ) : (
-                <>
-                  <Ionicons
-                    name="cloud-upload-outline"
-                    size={20}
-                    color={COLORS.white}
-                    style={styles.buttonIcon}
-                  />
-                  <Text style={styles.buttonText}> Share </Text>
-                </>
-              )}
-            </TouchableOpacity>
+
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Book Image</Text>
+              <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
+                {image ? (
+                  <Image source={{ uri: image }} style={styles.previewImage} />
+                ) : (
+                  <View style={styles.placeholderContainer}>
+                    <Ionicons
+                      name="image-outline"
+                      size={40}
+                      color={COLORS.textSecondary}
+                    />
+                    <Text style={styles.placeholderText}>
+                      Tap to select image
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Caption</Text>
+              <TextInput
+                style={styles.textArea}
+                placeholder="Write your review or thoughts about this book..."
+                placeholderTextColor={COLORS.placeholderText}
+                value={caption}
+                onChangeText={setCaption}
+                multiline
+              />
+              <TouchableOpacity
+                style={styles.button}
+                onPress={handleSubmit}
+                disabled={loading}
+              >
+                {loading ? (
+                  <ActivityIndicator color={COLORS.white} />
+                ) : (
+                  <>
+                    <Ionicons
+                      name="cloud-upload-outline"
+                      size={20}
+                      color={COLORS.white}
+                      style={styles.buttonIcon}
+                    />
+                    <Text style={styles.buttonText}>Share</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </ScrollView>
