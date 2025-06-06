@@ -83,25 +83,16 @@ export default function Create() {
       Alert.alert("Error", "Please fill in all the fields");
       return;
     }
-
     try {
       setLoading(true);
-
+      //get file extension from URI or default to jpg
       const uriParts = image.split(".");
       const fileType = uriParts[uriParts.length - 1];
       const imageType = fileType
         ? `image/${fileType.toLowerCase()}`
         : "image/jpeg";
+
       const imageDataUrl = `data:${imageType};base64,${imageBase64}`;
-
-      const payload = {
-        name: title.trim(),
-        caption: caption.trim(),
-        rating: parseInt(rating),
-        image: imageDataUrl,
-      };
-
-      console.log("Payload:", payload);
 
       const response = await fetch(`${API_URL}/books`, {
         method: "POST",
@@ -109,20 +100,16 @@ export default function Create() {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          title,
+          caption,
+          rating: rating.toString(),
+          image: imageDataUrl,
+        }),
       });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Server error response:", errorText);
-        throw new Error(
-          `Failed to post: ${response.status} ${response.statusText}`
-        );
-      }
-
-      const data = await response.json(); // not used but left for future use
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Something went wrong");
       Alert.alert("Success", "Your book recommendation has been posted!");
-
       setTitle("");
       setCaption("");
       setRating(3);
@@ -130,7 +117,7 @@ export default function Create() {
       setImageBase64(null);
       router.push("/");
     } catch (error) {
-      console.error("Error creating Post:", error);
+      console.error("Error creating post:", error);
       Alert.alert("Error", error.message || "Something went wrong");
     } finally {
       setLoading(false);
