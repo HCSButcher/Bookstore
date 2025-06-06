@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { useState } from "react";
 import { useRouter } from "expo-router";
@@ -15,7 +16,7 @@ import styles from "../../assets/styles/create.styles";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import COLORS from "../../constants/colors";
 import * as ImagePicker from "expo-image-picker";
-import { Image } from "expo-image";
+import * as FileSystem from "expo-file-system";
 import { useAuthStore } from "../../store/authStore";
 import { API_URL } from "../../constants/api";
 
@@ -33,32 +34,47 @@ export default function Create() {
 
   const pickImage = async () => {
     try {
+      //request permission to access the media library
       if (Platform.OS !== "web") {
         const { status } =
           await ImagePicker.requestMediaLibraryPermissionsAsync();
+
         if (status !== "granted") {
           Alert.alert(
             "Permission Denied",
-            "We need camera roll permissions to upload an image"
+            "We need camera roll permission to upload an image "
           );
           return;
         }
       }
-
+      //launch image library
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: "images",
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.5,
         base64: true,
       });
-
-      if (!result.canceled && result.assets.length > 0) {
+      if (!result.canceled) {
         setImage(result.assets[0].uri);
-        setImageBase64(result.assets[0].base64 || null);
+
+        //if base64 is provided, use it
+        if (result.assets[0].base64) {
+          setImageBase64(result.assets[0].base64);
+        } else {
+          //otherwise convert to base64
+          const base64 = await FileSystem.readAsStringAsync(
+            result.assets[0].uri,
+            {
+              encoding: FileSystem.EncodingType.Base64,
+            }
+          );
+          setImageBase64(base64);
+        }
       }
     } catch (error) {
-      console.error("Image pick error:", error);
+      console.error("Error picking image", error);
+      Alert.alert("Error", "There was a problem selecting your image:");
     }
   };
 

@@ -4,8 +4,6 @@ import User from "../models/User.js";
 const protectRoute = async (req, res, next) => {
   try {
     const token = req.header("Authorization")?.replace("Bearer ", "").trim();
-    console.log("Auth header:", req.header("Authorization"));
-    console.log("Extracted Token:", token);
 
     if (!token)
       return res

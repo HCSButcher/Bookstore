@@ -15,7 +15,7 @@ const bookSchema = new mongoose.Schema(
       required: true,
     },
     rating: {
-      type: Number,
+      type: String,
       required: true,
       min: 1,
       max: 5,
@@ -29,6 +29,5 @@ const bookSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Prevent model overwrite in dev environments
-const Book = mongoose.models.Book || mongoose.model("Book", bookSchema);
+const Book = mongoose.model("Book", bookSchema);
 export default Book;
