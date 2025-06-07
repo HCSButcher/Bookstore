@@ -1,10 +1,16 @@
-import { View, Text } from "react-native";
-import React from "react";
+import { View, Text, TouchableOpacity } from "react-native";
+import { useAuthStore } from "../../store/authStore";
 
-export default function Profile() {
+export default function profile() {
+  const { logout } = useAuthStore();
   return (
     <View>
-      <Text>Profile tab</Text>
+      <Text>profile</Text>
+      <TouchableOpacity onPress={logout}>
+        <View>
+          <Text>Logout</Text>
+        </View>
+      </TouchableOpacity>
     </View>
   );
 }
