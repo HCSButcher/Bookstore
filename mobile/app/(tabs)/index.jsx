@@ -77,22 +77,25 @@ export default function Home() {
             source={{ uri: item.user.profileImage }}
             style={styles.avatar}
           />
-          <Text style={styles.username}>{item.user.username} </Text>
-        </View>
-        <View style={styles.bookImageContainer}>
-          <Image
-            source={item.image}
-            style={styles.bookImage}
-            contentFit="cover"
-          />
+          <Text style={styles.username}>{item.user.username}</Text>
         </View>
       </View>
+
+      {/* Book image placed directly inside bookCard and styled properly */}
+      <View style={styles.bookImageContainer}>
+        <Image
+          source={item.image}
+          style={styles.bookImage}
+          resizeMode="cover" // changed from contentFit
+        />
+      </View>
+
       <View style={styles.bookDetails}>
-        <Text style={styles.bookTitle}> {item.title} </Text>
+        <Text style={styles.bookTitle}>{item.title}</Text>
         <View style={styles.ratingContainer}>
           {renderRatingStars(item.rating)}
         </View>
-        <Text style={styles.caption}>{item.caption} </Text>
+        <Text style={styles.caption}>{item.caption}</Text>
         <Text style={styles.date}>
           shared on {formatPublishDate(item.createdAt)}
         </Text>

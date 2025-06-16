@@ -7,11 +7,12 @@ import {
   View,
   Text,
   Alert,
+  Image,
 } from "react-native";
 import { Link } from "expo-router";
 import { useState } from "react";
 import styles from "../../assets/styles/login.styles";
-import { Image } from "react-native";
+
 import { Ionicons } from "@expo/vector-icons";
 import COLORS from "../../constants/colors";
 import { useAuthStore } from "../../store/authStore";
