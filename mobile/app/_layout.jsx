@@ -1,4 +1,4 @@
-import { Stack, useRouter, useSegments } from "expo-router";
+import { SplashScreen, Stack, useRouter, useSegments } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import SafeScreen from "../components/SafeScreen";
 import { StatusBar } from "expo-status-bar";
@@ -27,7 +27,7 @@ export default function RootLayout() {
     const isSignedIn = user && token;
     if (!isSignedIn && !inAuthScreen) router.replace("/(auth)");
     else if (isSignedIn && inAuthScreen) router.replace("/(tabs)");
-  }, [isReady, user, token, segments]);
+  }, [user, token, segments]);
 
   if (!isReady) return null;
   return (

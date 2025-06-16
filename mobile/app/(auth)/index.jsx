@@ -20,13 +20,15 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const { user, isLoading, login } = useAuthStore();
+  const { isCheckingAuth, isLoading, login } = useAuthStore();
 
   const handleLogin = async () => {
     const result = await login(email, password);
     console.log("login result", result);
     if (!result.success) Alert.alert("Error", result.error);
   };
+
+  if (isCheckingAuth) return null;
 
   return (
     <KeyboardAvoidingView
