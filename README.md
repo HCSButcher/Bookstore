@@ -121,7 +121,7 @@ Expo CLI (npm install -g expo-cli)
 
 Installation
 # Clone the repository
-git clone https://github.com/your-username/bookstore-app.git
+git clone https://github.com/HCSButcher/Bookstore.git
 
 # Navigate into the project
 cd bookstore-app
